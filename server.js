@@ -18,27 +18,27 @@ app.get("/notes", (req, res) => {
   });
 });
 
-app.post("/notes", (req, res) => {
-  const { title, content } = req.body;
+app.post("/notes", (req, res) => {  
+  const { title, content } = req.body;  
 
-  if (!title || !content) {
-    return res
-      .status(400)
-      .json({ error: "Título e conteúdo são obrigatórios." });
-  }
+  if (!title || !content) {  
+      return res  
+          .status(400)  
+          .json({ error: "Título e conteúdo são obrigatórios." });  
+  }  
 
-  db.run(
-    "INSERT INTO notes (title, content) VALUES (?, ?)",
-    [title, content],
-    function (err) {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Erro ao inserir nota" });
-      }
-      res.status(201).json({ id: this.lastID });
-    }
-  );
-});
+  db.run(  
+      "INSERT INTO notes (title, content) VALUES (?, ?)",  
+      [title, content],  
+      function (err) {  
+          if (err) {  
+              console.error(err);  
+              return res.status(500).json({ error: "Erro ao inserir nota" });  
+          }  
+          res.status(201).json({ id: this.lastID });  
+      }  
+  );  
+});  
 
 app.delete("/notes/:id", (req, res) => {
   const { id } = req.params;
