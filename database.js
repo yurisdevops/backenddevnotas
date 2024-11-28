@@ -2,10 +2,10 @@ const { Pool } = require("pg");
 
 // Configurações da conexão com o banco de dados PostgreSQL
 const pool = new Pool({
-  user: "seu_usuario", // Substitua pelo seu usuário do PostgreSQL
+  user: "yuridevops", // Substitua pelo seu usuário do PostgreSQL
   host: "localhost", // Ou o host do seu servidor PostgreSQL
-  database: "seu_banco_de_dados", // Nome do banco de dados
-  password: "sua_senha", // Substitua pela sua senha
+  database: "db-devnotas", // Nome do banco de dados
+  password: "90352415", // Substitua pela sua senha
   port: 5432, // Porta padrão do PostgreSQL
 });
 
