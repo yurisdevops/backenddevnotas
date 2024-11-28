@@ -1,26 +1,24 @@
 const express = require("express");
 const cors = require("cors");
-const db = require("./database"); // Importa o pool de conexão
+const db = require("./database");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
-// Rota para buscar todas as notas
-app.get("/notes", async (req, res) => {
-  try {
-    const result = await db.query("SELECT * FROM notes");
-    res.json(result.rows);
-  } catch (err) {
-    console.error("Erro ao buscar notas:", err);
-    res.status(500).json({ error: "Erro ao buscar notas" });
-  }
+app.get("/notes", (req, res) => {
+  db.all("SELECT * FROM notes", [], (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Erro ao buscar notas" });
+    }
+    res.json(rows);
+  });
 });
 
-// Rota para adicionar uma nova nota
-app.post("/notes", async (req, res) => {
+app.post("/notes", (req, res) => {
   const { title, content } = req.body;
 
   if (!title || !content) {
@@ -29,34 +27,30 @@ app.post("/notes", async (req, res) => {
       .json({ error: "Campos 'title' e 'content' são obrigatórios." });
   }
 
-  try {
-    const result = await db.query(
-      "INSERT INTO notes (title, content) VALUES ($1, $2) RETURNING id",
-      [title, content]
-    );
+  const stmt = db.prepare("INSERT INTO notes (title, content) VALUES (?, ?)");
+  stmt.run(title, content, function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
     res
       .status(201)
-      .json({ message: "Nota salva com sucesso!", id: result.rows[0].id });
-  } catch (err) {
-    console.error("Erro ao salvar nota:", err);
-    res.status(500).json({ error: "Erro ao salvar nota" });
-  }
+      .json({ message: "Nota salva com sucesso!", id: this.lastID });
+  });
 });
 
-// Rota para deletar uma nota
-app.delete("/notes/:id", async (req, res) => {
+app.delete("/notes/:id", (req, res) => {
   const { id } = req.params;
-
-  try {
-    const result = await db.query("DELETE FROM notes WHERE id = $1", [id]);
-    if (result.rowCount === 0) {
+  db.run("DELETE FROM notes WHERE id = ?", id, function (err) {
+    if (err) {
+      console.error("Erro ao deletar a nota:", err.message);
+      return res.status(500).json({ error: "Erro ao deletar a nota" });
+    }
+    if (this.changes === 0) {
+      // Se nenhuma linha foi afetada, significa que o ID não existe
       return res.status(404).json({ error: "Nota não encontrada" });
     }
-    res.json({ message: "Nota deletada com sucesso" });
-  } catch (err) {
-    console.error("Erro ao deletar nota:", err);
-    res.status(500).json({ error: "Erro ao deletar nota" });
-  }
+    res.json({ message: "Nota Deletada" });
+  });
 });
 
 app.listen(PORT, () => {
