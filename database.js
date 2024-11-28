@@ -1,12 +1,16 @@
 const { Pool } = require("pg");
 
-// Configuração do pool usando a URL do banco de dados
+// Configurações da conexão com o banco de dados PostgreSQL
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // Render define esta variável automaticamente
+  connectionString:
+    process.env.DATABASE_URL ||
+    "postgres://yuridevops:90352415@db-devnotas.onrender.com:5432/db-devnotas",
   ssl: {
-    rejectUnauthorized: false, // Necessário para conexões SSL no Render
+    rejectUnauthorized: false,
   },
 });
+
+module.exports = pool;
 
 // Verificação e criação da tabela se não existir
 pool.query(
