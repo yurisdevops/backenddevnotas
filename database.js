@@ -15,9 +15,9 @@ module.exports = pool;
 // Verificação e criação da tabela se não existir
 pool.query(
   `CREATE TABLE IF NOT EXISTS notes (
-    id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    content TEXT
   )`,
   (err) => {
     if (err) {
